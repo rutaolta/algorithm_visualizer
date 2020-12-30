@@ -1,9 +1,9 @@
 from copy import deepcopy
-
+import numpy as np
 
 def ispair(nucl1, nucl2):
     pairs = {"A": "U", "U": "A", "G": "C", "C": "G"}
-    if pairs[nucl1] == nucl2:
+    if pairs[nucl1.upper()] == nucl2.upper():
         return 1
     return 0
 
@@ -33,5 +33,5 @@ class Nussinov:
                 for k in range(i + 1, j - 1):
                     arr.append(matrix[i][k] + matrix[k + 1][j])
                 matrix[i][j] = max(arr)
-                self.history.append(deepcopy(matrix))
+                self.history.append(matrix)
         return matrix #[0][len(seq) - 1] or 0

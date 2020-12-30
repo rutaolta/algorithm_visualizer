@@ -3,6 +3,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 from draw_matrix import *
 from nussinov import *
+import time
 matplotlib.use("TkAgg")
 
 
@@ -17,6 +18,7 @@ class Application:
                     finalize=True,
                     element_justification="center",
                     font="Helvetica 18",
+                    background_color="white"
                 )
         self.fig = matplotlib.figure.Figure(figsize=(5, 5), dpi=100)
         self.data = None
@@ -26,7 +28,7 @@ class Application:
     def _init_layout(self):
         return [
             [
-                sg.Text("RNA sequence"),
+                sg.Text("RNA sequence", background_color='white', text_color='black'),
                 sg.In(size=(25, 1), enable_events=True, key="-FOLDER-"),
                 sg.Button("OK")
             ],
@@ -35,14 +37,24 @@ class Application:
         ]
 
     def validate_sequence(seq):
-        pass
+        if not seq.isalpha():
+            return ''
+        for char in seq.upper():
+            if char not in 'ACGU':
+                return ''
+            # raise("Incorrect")
+        return seq.upper()
 
     def clean_fig(self):
         if self.fig_agg:
             delete_fig_agg(self.fig_agg, plt)
 
-    def draw_fig(self):
-        self.fig_agg = draw(self.data[self.data.frame], self.im, self.window, self.fig)
+    def draw_fig(self, data = None):
+
+        if data:
+            self.fig_agg = draw(data, self.im, self.window, self.fig)
+        else:
+            self.fig_agg = draw(self.data[self.data.frame], self.im, self.window, self.fig)
 
     def go_right(self):
         if self.data.frame == len(self.data.history) - 1:
@@ -73,13 +85,19 @@ class Application:
                 self.draw_fig()
             elif event == 'Play':
                 if not self.data: continue
-                self.draw_fig()
+                for m in self.data.history:
+                    self.clean_fig()
+                    self.draw_fig(m)
+                    time.sleep(1)
             elif event == 'OK':
-                seq = values['-FOLDER-']
+                seq = values['-FOLDER-'].upper()
+                # seq = self.validate_sequence(s)
                 if not seq: continue
                 self.clean_fig()
                 self.data = Nussinov(seq)
-                self.im = self.fig.add_subplot(111).imshow(self.data[self.data.frame])
+                self.im = self.fig.add_subplot(111).imshow(self.data[self.data.frame], cmap='coolwarm')
+                self.im.axes.set_xticklabels([''] + list(seq))
+                self.im.axes.set_yticklabels([''] + list(seq))
                 self.draw_fig()
         self.window.close()
 
