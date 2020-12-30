@@ -1,9 +1,11 @@
 import PySimpleGUI as sg
 import matplotlib
 import matplotlib.pyplot as plt
+import time
 from draw_matrix import *
 from nussinov import *
-import time
+from traceback import *
+
 matplotlib.use("TkAgg")
 
 
@@ -29,27 +31,36 @@ class Application:
         return [
             [
                 sg.Text("RNA sequence", background_color='white', text_color='black'),
-                sg.In(size=(25, 1), enable_events=True, key="-FOLDER-"),
+                sg.In(size=(25, 1), enable_events=True, key="-SEQ-"),
                 sg.Button("OK")
             ],
-            [sg.Canvas(key="-CANVAS-")],
-            [sg.Button("Left"), sg.Button("Play"), sg.Button("Right")]
+            [
+                sg.Text(key="-TRACEBACK-"),
+                sg.Button("Traceback")
+            ],
+            [
+                sg.Canvas(key="-CANVAS-")
+            ],
+            [
+                sg.Button("Left"),
+                sg.Button("Play"),
+                sg.Button("Right")
+            ]
         ]
 
-    def validate_sequence(seq):
+    def validate_sequence(self, seq):
         if not seq.isalpha():
             return ''
         for char in seq.upper():
             if char not in 'ACGU':
                 return ''
-            # raise("Incorrect")
         return seq.upper()
 
     def clean_fig(self):
         if self.fig_agg:
             delete_fig_agg(self.fig_agg, plt)
 
-    def draw_fig(self, data = None):
+    def draw_fig(self, data=None):
 
         if data:
             self.fig_agg = draw(data, self.im, self.window, self.fig)
@@ -90,8 +101,8 @@ class Application:
                     self.draw_fig(m)
                     time.sleep(1)
             elif event == 'OK':
-                seq = values['-FOLDER-'].upper()
-                # seq = self.validate_sequence(s)
+                # seq = values['-FOLDER-'].upper()
+                seq = self.validate_sequence(values['-SEQ-'])
                 if not seq: continue
                 self.clean_fig()
                 self.data = Nussinov(seq)
@@ -99,6 +110,11 @@ class Application:
                 self.im.axes.set_xticklabels([''] + list(seq))
                 self.im.axes.set_yticklabels([''] + list(seq))
                 self.draw_fig()
+            elif event == 'Traceback':
+                # pass
+                traceback = Traceback(self.data.sequence, self.data.get_last())
+                # values["-TRACEBACK -"] = traceback.run()
+                s = traceback.run()
         self.window.close()
 
 
