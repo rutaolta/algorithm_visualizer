@@ -2,9 +2,10 @@ import PySimpleGUI as sg
 import matplotlib
 import matplotlib.pyplot as plt
 import time
+
 from draw_matrix import *
 from nussinov import *
-# from traceback import *
+from nussinov_traceback import *
 
 matplotlib.use("TkAgg")
 
@@ -35,7 +36,7 @@ class Application:
                 sg.Button("OK")
             ],
             [
-                sg.Text(size=(25, 1), key="-TRACEBACK-"),
+                sg.In(size=(25, 1), key="-TRACEBACK-"),
                 sg.Button("Traceback")
             ],
             [
@@ -43,7 +44,7 @@ class Application:
             ],
             [
                 sg.Button("Left"),
-                # sg.Button("Play"),
+                sg.Button("Play"),
                 sg.Button("Right")
             ]
         ]
@@ -79,6 +80,13 @@ class Application:
         else:
             self.data.frame -= 1
 
+    def draw_matrix(self, seq):
+        self.data = Nussinov(seq)
+        self.im = self.fig.add_subplot(111).imshow(self.data[-1], cmap='coolwarm')
+        self.im.axes.set_xticklabels([''] + list(seq))
+        self.im.axes.set_yticklabels([''] + list(seq))
+
+
     def run_loop(self):
         while True:
             event, values = self.window.read()
@@ -94,26 +102,21 @@ class Application:
                 self.clean_fig()
                 self.go_right()
                 self.draw_fig()
-            # elif event == 'Play':
-            #     if not self.data: continue
-            #     for m in self.data.history:
-            #         self.clean_fig()
-            #         self.draw_fig(m)
-            #         time.sleep(1)
+            elif event == 'Play':
+                if not self.data: continue
+                for m in range(len(self.data.history)-1):
+                    self.clean_fig()
+                    self.go_right()
+                    self.draw_fig()
             elif event == 'OK':
                 seq = self.validate_sequence(values['-SEQ-'])
                 if not seq: continue
                 self.clean_fig()
-                self.data = Nussinov(seq)
-                self.im = self.fig.add_subplot(111).imshow(self.data[-1], cmap='coolwarm')
-                self.im.axes.set_xticklabels([''] + list(seq))
-                self.im.axes.set_yticklabels([''] + list(seq))
+                self.draw_matrix(seq)
                 self.draw_fig()
             elif event == 'Traceback':
-                pass
-                # traceback = Traceback(self.data.sequence, self.data.get_last())
-                # values["-TRACEBACK -"] = traceback.run()
-                # s = traceback.run()
+                traceback = Traceback(self.data.sequence, self.data.get_last())
+                self.window['-TRACEBACK-'].update(traceback.run())
         self.window.close()
 
 
