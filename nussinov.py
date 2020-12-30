@@ -21,10 +21,10 @@ class Nussinov:
         return self.history[item]
 
     def get_last(self):
-        return self.data[len(self.data.history) - 1]
+        return self.history[len(self.history) - 1]
 
     def get_first(self):
-        return self.data[0]
+        return self.history[0]
 
     def initialize(self, N):
         DP = np.empty((N, N))
@@ -52,17 +52,14 @@ class Nussinov:
     def _run(self):
         N = len(self.sequence)
         DP = self.initialize(N)
-        # structure = []
-
+        self.history.append(np.array(DP))
         for k in range(self.min_loop_length, N):
             for i in range(N - k):
                 j = i + k
                 DP[i][j] = self.OPT(i, j)
+                DP[j][i] = DP[i][j]
+                self.history.append(np.array(DP))
 
-        for i in range(N):
-            for j in range(0, i):
-                DP[i][j] = DP[j][i]
-                self.history.append(DP)
         return DP
         # n = len(self.sequence)
         # matrix = [[0] * n for _ in range(n)]
@@ -77,5 +74,5 @@ class Nussinov:
         #         for k in range(i + 1, j - 1):
         #             arr.append(matrix[i][k] + matrix[k + 1][j])
         #         matrix[i][j] = max(arr)
-        #         self.history.append(matrix)
-        # return matrix #[0][len(seq) - 1] or 0
+        #         self.history.append(np.array(matrix))
+        # return matrix

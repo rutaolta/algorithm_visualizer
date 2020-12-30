@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import time
 from draw_matrix import *
 from nussinov import *
-from traceback import *
+# from traceback import *
 
 matplotlib.use("TkAgg")
 
@@ -35,7 +35,7 @@ class Application:
                 sg.Button("OK")
             ],
             [
-                sg.Text(key="-TRACEBACK-"),
+                sg.Text(size=(25, 1), key="-TRACEBACK-"),
                 sg.Button("Traceback")
             ],
             [
@@ -43,7 +43,7 @@ class Application:
             ],
             [
                 sg.Button("Left"),
-                sg.Button("Play"),
+                # sg.Button("Play"),
                 sg.Button("Right")
             ]
         ]
@@ -94,27 +94,26 @@ class Application:
                 self.clean_fig()
                 self.go_right()
                 self.draw_fig()
-            elif event == 'Play':
-                if not self.data: continue
-                for m in self.data.history:
-                    self.clean_fig()
-                    self.draw_fig(m)
-                    time.sleep(1)
+            # elif event == 'Play':
+            #     if not self.data: continue
+            #     for m in self.data.history:
+            #         self.clean_fig()
+            #         self.draw_fig(m)
+            #         time.sleep(1)
             elif event == 'OK':
-                # seq = values['-FOLDER-'].upper()
                 seq = self.validate_sequence(values['-SEQ-'])
                 if not seq: continue
                 self.clean_fig()
                 self.data = Nussinov(seq)
-                self.im = self.fig.add_subplot(111).imshow(self.data[self.data.frame], cmap='coolwarm')
+                self.im = self.fig.add_subplot(111).imshow(self.data[-1], cmap='coolwarm')
                 self.im.axes.set_xticklabels([''] + list(seq))
                 self.im.axes.set_yticklabels([''] + list(seq))
                 self.draw_fig()
             elif event == 'Traceback':
-                # pass
-                traceback = Traceback(self.data.sequence, self.data.get_last())
+                pass
+                # traceback = Traceback(self.data.sequence, self.data.get_last())
                 # values["-TRACEBACK -"] = traceback.run()
-                s = traceback.run()
+                # s = traceback.run()
         self.window.close()
 
 
